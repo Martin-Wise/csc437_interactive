@@ -1,0 +1,12 @@
+:root {
+    --nav-bg-color: #a86523;
+    --nav-text-color: #fcfaf5;
+    --main-bg-color: #fad59a;
+    --list-bg-color: #eeb33e;
+    --list-text-color: black;
+
+    --nav-bg-color: #2d1a0a;
+    --nav-text-color: #fdf8f0;
+    --main-bg-color: #3a2d1a;
+    --list-bg-color: #71541e;
+}

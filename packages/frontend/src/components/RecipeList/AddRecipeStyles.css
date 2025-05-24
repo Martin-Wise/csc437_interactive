@@ -1,0 +1,128 @@
+
+#container-add {
+    margin: 1em auto 1em auto;
+    background-color: var(--list-bg-color);
+    border: black solid 1px;
+    border-radius: 3px;
+    min-height: 80vh;
+    padding: 15px;
+    font-size: 20px;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  #item-header-add {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    background-color: var(--nav-bg-color);
+    border: black solid 1px;
+    padding: 10px;
+    border-radius: 3px;
+    color: var(--nav-text-color);
+    flex-wrap: wrap;
+  }
+  
+  #item-header-img-wrapper {
+    width: 40%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border: 2px solid black;
+    border-radius: 5px;
+    min-width: 120px;
+    max-width: 180px;
+}
+  
+  #item-header-img-wrapper-add img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+
+  #recipe-name-input-add {
+    flex: 1;
+    font-size: 1.5em;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  #recipe-content-add {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin-top: 1em;
+  }
+  #recipe-content label {
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+  #recipe-content textarea {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 150px;
+    padding: 10px;
+    font-size: 1em;
+    resize: vertical;
+    border: 1px solid #000;
+    border-radius: 5px;
+  }
+
+  #recipe-new {
+    display: flex;
+    justify-content: end;
+  }
+  #recipe-new-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    background-color: var(--nav-bg-color);
+    color: var(--nav-text-color);
+    font-size: 30px;
+    border: black solid 3px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+  #grocery-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+    font-size: 1.1em;
+  }
+  #grocery-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  #grocery-content input,
+  #grocery-content select {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid black;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  #grocery-content button {
+    margin-top: 30px;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  .strikethrough {
+    text-decoration: line-through;
+  }
+  
