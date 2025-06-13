@@ -1,34 +1,49 @@
-import React from 'react';
 import './GroceryList.css';
-import Header from '../Header';
 import ItemList from './ItemList';
 import NewItemButton from './NewItemButton';
 import Modal from './Modal';
 import AddItem from './AddItem';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Item {
+  _id: string
   name: string;
   quantity: number;
   category: string;
   isChecked: boolean;
-};
-
-interface GroceryListType {
-  isDark: boolean;
-  setIsDark: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function GroceryList({isDark, setIsDark} : GroceryListType){
-  const testItems = [
-    {name: "Tomato", quantity: 2, category: "Produce", isChecked: false},
-    {name: "Apple", quantity: 3, category: "Produce", isChecked: true},
-    {name: "Penne Pasta", quantity: 2, category: "Other", isChecked: false},
-  ]
+interface GroceryListPropType {
+  authToken: string
+}
 
+function GroceryList({authToken} : GroceryListPropType) {
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [items, setItems] = useState<Item[]>(testItems);
-  
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/items", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch items.");
+        return res.json();
+      })
+      .then((data) => {
+        setItems(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
   function onCloseRequested() {
     setModalIsOpen(false);
   }
@@ -40,15 +55,25 @@ function GroceryList({isDark, setIsDark} : GroceryListType){
         isOpen={modalIsOpen}
         onCloseRequested={onCloseRequested}
       >
-        <AddItem onCloseRequested={onCloseRequested} items={items} setItems={setItems}/>
+        <AddItem
+          onCloseRequested={onCloseRequested}
+          items={items}
+          setItems={setItems}
+          authToken={authToken}
+        />
       </Modal>
-      <Header isDark ={isDark} setIsDark={setIsDark}/>
       <div id="container">
-        <ItemList items = {items} setItems = {setItems}/>
-        <NewItemButton setModalIsOpen = {setModalIsOpen}/>
+        {loading && <p>Loading items...</p>}
+        {error && <p>Error: {error}</p>}
+        {!loading && !error && (
+          <>
+            <ItemList items={items} setItems={setItems} authToken={authToken}/>
+            <NewItemButton setModalIsOpen={setModalIsOpen} />
+          </>
+        )}
       </div>
     </>
   );
-};
+}
 
 export default GroceryList;

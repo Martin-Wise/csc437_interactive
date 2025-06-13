@@ -20,6 +20,38 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    z-index: 1;
+  }
+
+  .list-item-container {
+    border-bottom: var(--nav-bg-color) solid 1px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .delete-button {
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+  
+  .list-item-container:hover .delete-button {
+    opacity: 1;
+  }
+  
+  .delete-button:hover {
+    background: #cc0000;
   }
   
   #list-header {
@@ -42,7 +74,7 @@
     min-width: 25px;
   }
   .item {
-    border-bottom: var(--nav-bg-color) solid 1px;
+    
     font-size: clamp(2rem, 3vw, 2rem);
     display: flex;
     gap: 10px;
@@ -88,4 +120,3 @@
       margin-right: 10px;
     }
   }
-  

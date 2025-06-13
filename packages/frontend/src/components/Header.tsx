@@ -1,4 +1,6 @@
 import { Link } from 'react-router';
+import { ValidRoutes } from "../../../backend/src/shared/ValidRoutes.ts";
+
 import tmpProfileImg from '../assets/tmp_profile.jpg'
 import './Header.css'
 
@@ -6,6 +8,7 @@ interface HeaderType {
   isDark: boolean;
   setIsDark: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
 
 function Header({isDark, setIsDark}: HeaderType) {
 
@@ -25,11 +28,13 @@ function Header({isDark, setIsDark}: HeaderType) {
               <div className="slider-knob">{isDark ? 'ON' : 'OFF'}</div>
             </div>
         </div>
-        <Link to="/index">Lists</Link>
-        <Link to="/recipes">Recipes</Link>
-        <button id="nav-profile-button">
-          <img id="nav-profile-pic" src={tmpProfileImg} alt="Profile" />
-        </button>
+        <Link to={ValidRoutes.HOME}>Lists</Link>
+        <Link to={ValidRoutes.RECIPES}>Recipes</Link>
+        <Link to={ValidRoutes.LOGIN}>
+          <button id="nav-profile-button">
+            <img id="nav-profile-pic" src={tmpProfileImg} alt="Profile" />
+          </button>
+        </Link>
       </div>
     </header>
   );

@@ -1,44 +1,66 @@
 import './RecipeStyles.css';
-import { useState } from 'react';
-
-import Header from '../Header';
+import { useEffect, useState } from 'react';
 import Recipe from './Recipe';
 import AddRecipe from './AddRecipe';
 import Modal from './Modal';
 import NewRecipeButton from './NewRecipeButton';
 
-interface RecipesPageType {
-  isDark: boolean;
-  setIsDark: React.Dispatch<React.SetStateAction<boolean>>;
+interface Ingredient {
+  name: string;
+  quantity: number;
+  category: string;
+  isChecked: boolean;
 }
 
 interface Recipes {
-  img: string;
-  alt: string;
+  _id: string;
   name: string;
-  ingredients: string;
+  ingredients: Ingredient[];
   instructions: string;
 }
 
-function RecipesPage({isDark, setIsDark}: RecipesPageType) {
-  const tempListRecipes = [
-    {img: "/src/assets/pizza.jpeg", alt:"handmade pizza", name:"Pizza Recipe", ingredients:"Pizza ingredients", instructions:"Make the pizza"},
-    {img: "/src/assets/spaghetti.jpeg", alt:"homemade spaghetti and meatballs", name:"Spaghetti Recipe", ingredients:"Spaghetti ingredients", instructions:"Make the spaghetti"},
-    {img: "/src/assets/burrito.jpeg", alt:"several burritos cut in half", name:"Burrito Recipe", ingredients:"Burrito ingredients", instructions:"Make the burrito"},
-  ]
+interface RecipePagePropsType {
+  authToken: string;
+}
 
-  const [recipeList, setRecipeList] = useState<Recipes[]>(tempListRecipes);
+function RecipesPage({ authToken }: RecipePagePropsType) {
+  const [recipeList, setRecipeList] = useState<Recipes[]>([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    fetch("/api/recipes", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch recipes.");
+        return res.json();
+      })
+      .then((data) => {
+        setRecipeList(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
 
   function onCloseRequested() {
     setModalIsOpen(false);
   }
+
   const filteredRecipes = recipeList.filter(recipe =>
     recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    recipe.ingredients.toLowerCase().includes(searchQuery.toLowerCase()) ||
     recipe.instructions.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
 
   return (
     <>
@@ -47,13 +69,17 @@ function RecipesPage({isDark, setIsDark}: RecipesPageType) {
         isOpen={modalIsOpen}
         onCloseRequested={onCloseRequested}
       >
-        <AddRecipe onCloseRequested={onCloseRequested} recipeList={recipeList} setRecipeList={setRecipeList}/>
+        <AddRecipe
+          onCloseRequested={onCloseRequested}
+          recipeList={recipeList}
+          setRecipeList={setRecipeList}
+          authToken={authToken}
+        />
       </Modal>
-      <Header isDark={isDark} setIsDark={setIsDark}/>
 
       <main id="container">
         <div>
-          <div id="recipe-header">Recipies</div>
+          <div id="recipe-header">Recipes</div>
 
           <div id="recipe-search">
             <input
@@ -65,19 +91,23 @@ function RecipesPage({isDark, setIsDark}: RecipesPageType) {
           </div>
 
           <div id="recipe-content">
-            {filteredRecipes.map((recipe, idx) => (
+            {loading && <p>Loading recipes...</p>}
+            {error && <p>Error: {error}</p>}
+            {!loading && !error && filteredRecipes.map((recipe, idx) => (
               <Recipe
-                  key={idx}
-                  recipe={recipe}
+                key={idx}
+                recipe={recipe}
+                authToken={authToken}
+                setRecipeList={setRecipeList}
               />
             ))}
           </div>
         </div>
 
-        <NewRecipeButton setModalIsOpen={setModalIsOpen}/>
+        <NewRecipeButton setModalIsOpen={setModalIsOpen} />
       </main>
     </>
   );
-};
+}
 
 export default RecipesPage;

@@ -1,11 +1,18 @@
 import { useState } from "react";
-import './AddRecipeStyles.css'
+import './AddRecipeStyles.css';
+import { ObjectId } from 'bson';
+
+interface Ingredient {
+  name: string;
+  quantity: number;
+  category: string;
+  isChecked: boolean;
+}
 
 interface Recipe {
-  img: string;
-  alt: string;
+  _id: string;
   name: string;
-  ingredients: string;
+  ingredients: Ingredient[];
   instructions: string;
 }
 
@@ -13,50 +20,73 @@ interface AddRecipeProps {
   recipeList: Recipe[];
   setRecipeList: React.Dispatch<React.SetStateAction<Recipe[]>>;
   onCloseRequested: React.Dispatch<React.SetStateAction<void>>;
+  authToken: string;
 }
 
 function AddRecipe(props: AddRecipeProps) {
-  // const [img, setImg] = useState('');
-  const img = "/src/assets/pizza.jpeg";
-  // const [alt, setAlt] = useState('Homemade Pizza');
-  const alt = "Homemade Pizza";
   const [name, setName] = useState("");
-  const [ingredients, setIngredients] = useState("");
   const [instructions, setInstructions] = useState("");
+  const [ingredientList, setIngredientList] = useState<Ingredient[]>([]);
+  const [ingredientInput, setIngredientInput] = useState({
+    name: "",
+    quantity: 1,
+    category: ""
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const addIngredient = () => {
+    if (!ingredientInput.name.trim() || !ingredientInput.category.trim()) return;
+
+    const newIngredient: Ingredient = {
+      ...ingredientInput,
+      isChecked: false
+    };
+
+    setIngredientList([...ingredientList, newIngredient]);
+    setIngredientInput({ name: "", quantity: 1, category: "" });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Basic validation
-    if (
-      !img.trim() ||
-      !alt.trim() ||
-      !name.trim() ||
-      !ingredients.trim() ||
-      !instructions.trim()
-    ) {
-      alert("Please fill in all required fields.");
+  
+    if (!name.trim() || ingredientList.length === 0 || !instructions.trim()) {
+      alert("Please complete all fields including at least one ingredient.");
       return;
     }
-
+  
     const newRecipe: Recipe = {
-      img: img.trim(),
-      alt: alt.trim(),
+      _id: new ObjectId().toHexString(),
       name: name.trim(),
-      ingredients: ingredients.trim(),
+      ingredients: ingredientList,
       instructions: instructions.trim(),
     };
-    props.setRecipeList([...props.recipeList, newRecipe]);
-    props.onCloseRequested();
+  
+    try {
+      const response = await fetch("/api/recipes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${props.authToken}`,
+        },
+        body: JSON.stringify(newRecipe),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to save recipe");
+      }
+  
+      const savedRecipe = await response.json();
+      props.setRecipeList([...props.recipeList, savedRecipe]);
+      props.onCloseRequested();
+    } catch (error) {
+      alert("Error saving recipe: " + (error as Error).message);
+    }
   };
+  
 
   return (
     <div id="container-add">
       <div>
         <div id="item-header-add">
-          <div id="item-header-img-wrapper">
-            <img src={img} alt={alt} />
-          </div>
           <input
             id="recipe-name-input-add"
             type="text"
@@ -67,13 +97,36 @@ function AddRecipe(props: AddRecipeProps) {
         </div>
 
         <div id="recipe-content-add">
-          <label htmlFor="recipe-ingredients">Ingredients</label>
-          <textarea
-            id="recipe-ingredients"
-            placeholder="List ingredients here..."
-            value={ingredients}
-            onChange={(e) => setIngredients(e.target.value)}
-          ></textarea>
+          <label>Ingredient Name</label>
+          <input
+            type="text"
+            value={ingredientInput.name}
+            onChange={(e) => setIngredientInput({ ...ingredientInput, name: e.target.value })}
+          />
+
+          <label>Quantity</label>
+          <input
+            type="number"
+            value={ingredientInput.quantity}
+            onChange={(e) => setIngredientInput({ ...ingredientInput, quantity: Number(e.target.value) })}
+          />
+
+          <label>Category</label>
+          <input
+            type="text"
+            value={ingredientInput.category}
+            onChange={(e) => setIngredientInput({ ...ingredientInput, category: e.target.value })}
+          />
+
+          <button type="button" onClick={addIngredient}>Add Ingredient</button>
+
+          <ul>
+            {ingredientList.map((ing, index) => (
+              <li key={index}>
+                {ing.name} - {ing.quantity} ({ing.category})
+              </li>
+            ))}
+          </ul>
 
           <label htmlFor="recipe-instructions">Instructions</label>
           <textarea
@@ -83,11 +136,11 @@ function AddRecipe(props: AddRecipeProps) {
             onChange={(e) => setInstructions(e.target.value)}
           ></textarea>
         </div>
+
         <button className="recipe-content-card-button" onClick={handleSubmit}>
-        Add Recipe
-      </button>
+          Add Recipe
+        </button>
       </div>
-      
     </div>
   );
 }

@@ -1,13 +1,16 @@
 import { useState } from "react";
 import "./AddItemStyles.css";
+import { ObjectId } from 'bson';
 
 interface AddItemProps {
   items: Item[];
   setItems: React.Dispatch<React.SetStateAction<Item[]>>;
   onCloseRequested: React.Dispatch<React.SetStateAction<void>>;
+  authToken: string;
 }
 
 interface Item {
+  _id: string;
   name: string;
   quantity: number;
   category: string;
@@ -19,7 +22,7 @@ function AddItem(props: AddItemProps) {
   const [quantity, setQuantity] = useState<number>(1);
   const [category, setCategory] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Basic validation
@@ -29,14 +32,32 @@ function AddItem(props: AddItemProps) {
     }
 
     const newItem: Item = {
+      _id: new ObjectId().toHexString(),
       name: name.trim(),
       quantity,
       category: category,
       isChecked: false,
     };
 
-    props.setItems([...props.items, newItem]);
-    props.onCloseRequested();
+    try {
+      const res = await fetch("/api/items", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${props.authToken}`,
+        },
+        body: JSON.stringify(newItem),
+      });
+
+      if (!res.ok) throw new Error("Failed to add item.");
+
+      const createdItem = await res.json();
+
+      props.setItems([...props.items, createdItem]);
+      props.onCloseRequested();
+    } catch (err) {
+      alert("Error adding item: " + (err as Error).message);
+    }
   };
 
   return (
@@ -44,9 +65,6 @@ function AddItem(props: AddItemProps) {
       <div id="container">
         <div>
           <div id="item-header">
-            <div id="item-header-img-wrapper">
-              <img src="/src/assets/tomato.jpeg" alt="Uploaded recipe" />
-            </div>
             <input
               id="item-name-input"
               type="text"

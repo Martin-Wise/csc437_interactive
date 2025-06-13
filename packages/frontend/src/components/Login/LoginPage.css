@@ -1,0 +1,31 @@
+
+.LoginPage-form > * {
+    display: block;
+}
+.LoginPage-form > label {
+    margin-top: 1em;
+    color: var(--list-text-color);
+}
+.LoginPage-form > input[type="submit"] {
+    margin-top: 1em;
+}
+
+h2 {
+    margin-top: 1em;
+    color: var(--list-text-color);
+}
+
+p {
+    margin-top: 1em;
+    color: var(--list-text-color);
+}
+
+#link {
+    color: var(--list-text-color);
+}
+
+#login-bg {
+    background-color: var(--list-bg-color);
+    width: fit-content;
+    padding: 1em
+}
